@@ -3,12 +3,23 @@ using Serilog;
 
 namespace KoalaWiki;
 
+/// <summary>
+/// KoalaHttpClientHandler 类是一个自定义的 HTTP 客户端处理程序，继承自 HttpClientHandler。
+/// 该类用于在发送 HTTP 请求时记录详细的日志信息，包括请求方法、URI、响应状态码以及请求耗时。
+/// </summary>
 public sealed class KoalaHttpClientHandler : HttpClientHandler
 {
+    /// <summary>
+    /// 发送 HTTP 请求并记录日志。
+    /// </summary>
+    /// <param name="request">HTTP 请求消息</param>
+    /// <param name="cancellationToken">取消操作的令牌</param>
+    /// <returns>HTTP 响应消息</returns>
     protected override async Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
+        // 记录请求开始日志
         Log.Logger.Information("HTTP {Method} {Uri}", request.Method, request.RequestUri);
 
         // 1. 启动计时
@@ -18,7 +29,7 @@ public sealed class KoalaHttpClientHandler : HttpClientHandler
             .ConfigureAwait(false);
         // 3. 停止计时
         stopwatch.Stop();
-        // 4. 记录简洁日志
+        // 4. 记录请求完成日志
         Log.Logger.Information(
             "HTTP {Method} {Uri} => {StatusCode} in {ElapsedMilliseconds}ms",
             request.Method,

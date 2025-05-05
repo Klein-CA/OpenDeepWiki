@@ -11,25 +11,34 @@ namespace KoalaWiki.Core.DataAccess;
 public class KoalaWikiContext<TContext>(DbContextOptions<TContext> options)
     : DbContext(options), IKoalaWikiContext where TContext : DbContext
 {
+    /// <inheritdoc/>
     public DbSet<Warehouse> Warehouses { get; set; }
 
+    /// <inheritdoc/>
     public DbSet<DocumentCatalog> DocumentCatalogs { get; set; }
 
+    /// <inheritdoc/>
     public DbSet<Document> Documents { get; set; }
 
+    /// <inheritdoc/>
     public DbSet<DocumentFileItem> DocumentFileItems { get; set; }
 
+    /// <inheritdoc/>
     public DbSet<DocumentFileItemSource> DocumentFileItemSources { get; set; }
 
+    /// <inheritdoc/>
     public DbSet<DocumentOverview> DocumentOverviews { get; set; }
-    
+
+    /// <inheritdoc/>
     public DbSet<DocumentCommitRecord> DocumentCommitRecords { get; set; }
 
+    /// <inheritdoc/>
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
     {
         return await base.SaveChangesAsync(cancellationToken);
     }
 
+    /// <inheritdoc/>
     public async Task RunMigrateAsync()
     {
         await Database.MigrateAsync();

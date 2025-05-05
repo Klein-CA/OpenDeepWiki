@@ -9,12 +9,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KoalaWiki.Services;
 
+/// <summary>
+/// WarehouseService 类用于处理与仓库相关的业务逻辑。
+/// 该类提供了仓库的查询、提交、获取变更日志、获取仓库概述以及获取仓库列表等功能。
+/// </summary>
 public class WarehouseService(IKoalaWikiContext access, IMapper mapper, WarehouseStore warehouseStore) : FastApi
 {
     /// <summary>
-    /// 查询上次提交的仓库
+    /// 查询上次提交的仓库信息。
     /// </summary>
-    /// <returns></returns>
+    /// <param name="address">仓库地址</param>
+    /// <returns>包含仓库信息的匿名对象</returns>
     public async Task<object> GetLastWarehouseAsync(string address)
     {
         // 判断是否.git结束，如果不是需要添加
@@ -26,13 +31,7 @@ public class WarehouseService(IKoalaWikiContext access, IMapper mapper, Warehous
         var query = await access.Warehouses
             .AsNoTracking()
             .Where(x => x.Address == address)
-            .FirstOrDefaultAsync();
-
-        // 如果没有找到仓库，返回空列表
-        if (query == null)
-        {
-            throw new NotFoundException("仓库不存在");
-        }
+            .FirstOrDefaultAsync() ?? throw new NotFoundException("仓库不存在");
 
         return new
         {
@@ -45,29 +44,28 @@ public class WarehouseService(IKoalaWikiContext access, IMapper mapper, Warehous
         };
     }
 
+    /// <summary>
+    /// 获取指定仓库的变更日志。
+    /// </summary>
+    /// <param name="owner">仓库所有者</param>
+    /// <param name="name">仓库名称</param>
+    /// <returns>文档提交记录实体</returns>
     public async Task<DocumentCommitRecord?> GetChangeLogAsync(string owner, string name)
     {
         var warehouse = await access.Warehouses
             .AsNoTracking()
             .Where(x => x.Name == name && x.OrganizationName == owner)
-            .FirstOrDefaultAsync();
-
-        // 如果没有找到仓库，返回空列表
-        if (warehouse == null)
-        {
-            throw new NotFoundException("仓库不存在");
-        }
-
-        
+            .FirstOrDefaultAsync() ?? throw new NotFoundException("仓库不存在");
         var commit = await access.DocumentCommitRecords.FirstOrDefaultAsync(x => x.WarehouseId == warehouse.Id);
-
 
         return commit;
     }
 
     /// <summary>
-    /// 提交仓库
+    /// 提交仓库信息。
     /// </summary>
+    /// <param name="input">仓库输入信息</param>
+    /// <param name="context">HTTP 上下文</param>
     public async Task SubmitWarehouseAsync(WarehouseInput input, HttpContext context)
     {
         try
@@ -80,7 +78,6 @@ public class WarehouseService(IKoalaWikiContext access, IMapper mapper, Warehous
             var value = await access.Warehouses.FirstOrDefaultAsync(x => x.Address == input.Address);
             // 判断这个仓库是否已经添加
             if (value?.Status is WarehouseStatus.Completed or WarehouseStatus.Pending or WarehouseStatus.Processing)
-
             {
                 throw new Exception("存在相同名称的渠道");
             }
@@ -102,7 +99,6 @@ public class WarehouseService(IKoalaWikiContext access, IMapper mapper, Warehous
 
             entity.Id = Guid.NewGuid().ToString();
             await access.Warehouses.AddAsync(entity);
-
             await access.SaveChangesAsync();
 
             await warehouseStore.WriteAsync(entity);
@@ -124,32 +120,24 @@ public class WarehouseService(IKoalaWikiContext access, IMapper mapper, Warehous
     }
 
     /// <summary>
-    /// 获取仓库概述
+    /// 获取指定仓库的概述信息。
     /// </summary>
+    /// <param name="owner">仓库所有者</param>
+    /// <param name="name">仓库名称</param>
+    /// <param name="context">HTTP 上下文</param>
     public async Task GetWarehouseOverviewAsync(string owner, string name, HttpContext context)
     {
         var query = await access.Warehouses
             .AsNoTracking()
             .Where(x => x.Name == name && x.OrganizationName == owner)
-            .FirstOrDefaultAsync();
-
-        // 如果没有找到仓库，返回空列表
-        if (query == null)
-        {
-            throw new NotFoundException("仓库不存在");
-        }
+            .FirstOrDefaultAsync() ?? throw new NotFoundException("仓库不存在");
 
         var document = await access.Documents
             .AsNoTracking()
             .Where(x => x.WarehouseId == query.Id)
             .FirstOrDefaultAsync();
 
-        var overview = await access.DocumentOverviews.FirstOrDefaultAsync(x => x.DocumentId == document.Id);
-
-        if (overview == null)
-        {
-            throw new NotFoundException("没有找到概述");
-        }
+        var overview = await access.DocumentOverviews.FirstOrDefaultAsync(x => x.DocumentId == document.Id) ?? throw new NotFoundException("没有找到概述");
 
         await context.Response.WriteAsJsonAsync(new
         {
@@ -158,6 +146,12 @@ public class WarehouseService(IKoalaWikiContext access, IMapper mapper, Warehous
         });
     }
 
+    /// <summary>
+    /// 获取仓库列表，支持分页查询。
+    /// </summary>
+    /// <param name="page">当前页码</param>
+    /// <param name="pageSize">每页大小</param>
+    /// <returns>包含仓库列表的分页数据</returns>
     public async Task<PageDto<Warehouse>> GetWarehouseListAsync(int page, int pageSize)
     {
         var query = access.Warehouses

@@ -11,18 +11,18 @@ public class Warehouse : Entity<string>
     /// <summary>
     /// 仓库名称
     /// </summary>
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     /// <summary>
     /// 仓库描述
     /// </summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>
     /// 仓库地址
     /// </summary>
     /// <returns></returns>
-    public string Address { get; set; }
+    public required string Address { get; set; }
 
     /// <summary>
     /// 私有化git账号
@@ -42,12 +42,12 @@ public class Warehouse : Entity<string>
     /// <summary>
     /// 仓库类型
     /// </summary>
-    public string Type { get; set; }
+    public string? Type { get; set; }
 
     /// <summary>
     /// 仓库分支
     /// </summary>
-    public string Branch { get; set; }
+    public string? Branch { get; set; }
 
     /// <summary>
     /// 仓库状态
@@ -57,17 +57,17 @@ public class Warehouse : Entity<string>
     /// <summary>
     /// 错误信息
     /// </summary>
-    public string Error { get; set; }
+    public string? Error { get; set; }
 
     /// <summary>
     /// 构建提示词
     /// </summary>
-    public string Prompt { get; set; }
+    public string? Prompt { get; set; }
 
     /// <summary>
     /// 仓库版本
     /// </summary>
-    public string Version { get; set; }
+    public string? Version { get; set; }
 
     /// <summary>
     /// 使用模型

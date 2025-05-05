@@ -1,12 +1,15 @@
 ﻿namespace KoalaWiki.Dto;
 
+/// <summary>
+/// 仓库参数
+/// </summary>
 public class WarehouseInput
 {
     /// <summary>
     /// 仓库地址
     /// </summary>
     /// <returns></returns>
-    public string Address { get; set; }
+    public required string Address { get; set; }
 
     /// <summary>
     /// 使用模型
@@ -32,7 +35,7 @@ public class WarehouseInput
     /// 私有化git密码
     /// </summary>
     public string? GitPassword { get; set; }
-    
+
     /// <summary>
     ///  私有化git邮箱
     /// </summary>

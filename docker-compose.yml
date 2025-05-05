@@ -1,23 +1,24 @@
 ﻿services:
   koalawiki:
-    image: crpi-j9ha7sxwhatgtvj4.cn-shenzhen.personal.cr.aliyuncs.com/koala-ai/koala-wiki
-    ports:
-      - 8080:8080
-    environment:
-      - KOALAWIKI_REPOSITORIES=/repositories
-      - TaskMaxSizePerUser=5 # 每个用户AI处理文档生成的最大数量
-    volumes:
-      - ./repositories:/app/repositories
-      - ./data:/data
     build:
       context: .
       dockerfile: src/KoalaWiki/Dockerfile
-      
-  koalawiki-web:
-    image: crpi-j9ha7sxwhatgtvj4.cn-shenzhen.personal.cr.aliyuncs.com/koala-ai/koala-wiki-web
+    #image: koala-wiki:latest
+    ports:
+      - "8080:8080"
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - KOALAWIKI_REPOSITORIES=/app/repositories
+      - TaskMaxSizePerUser=5
+    volumes:
+      - ./repositories:/app/repositories
+      - ./data:/data
+
+  koalawiki-web:
     build:
       context: web/.
       dockerfile: web/Dockerfile
-
+    #image: koala-wiki-web:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8080

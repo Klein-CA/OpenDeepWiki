@@ -33,7 +33,6 @@ public class Document : Entity<string>
     /// <returns></returns>
     public string GitPath { get; set; } = string.Empty;
     
-    
     /// <summary>
     /// 仓库状态
     /// </summary>

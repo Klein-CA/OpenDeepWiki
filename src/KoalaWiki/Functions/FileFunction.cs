@@ -5,12 +5,20 @@ using Microsoft.SemanticKernel;
 
 namespace KoalaWiki.Functions;
 
+/// <summary>
+/// 文件操作功能类，提供读取文件内容的相关方法。
+/// </summary>
+/// <param name="gitPath">Git仓库的根路径。</param>
 public class FileFunction(string gitPath)
 {
+    /// <summary>
+    /// 异步读取指定路径的文件内容，并返回一个字典，键为文件路径，值为文件内容。
+    /// </summary>
+    /// <param name="filePaths">文件路径数组。</param>
+    /// <returns>返回一个字典，键为文件路径，值为文件内容。</returns>
     [KernelFunction, Description("读取指定的文件内容")]
     [return: Description("返回字典，key是目录名称")]
-    public async Task<Dictionary<string, string>> ReadFilesAsync(
-        [Description("文件路径")] string[] filePaths)
+    public async Task<Dictionary<string, string>> ReadFilesAsync([Description("文件路径")] string[] filePaths)
     {
         try
         {
@@ -53,9 +61,13 @@ public class FileFunction(string gitPath)
         }
     }
 
+    /// <summary>
+    /// 异步读取指定路径的文件内容。
+    /// </summary>
+    /// <param name="filePath">文件路径。</param>
+    /// <returns>返回文件内容，如果文件不存在或文件过大，返回相应的错误信息。</returns>
     [KernelFunction, Description("读取指定的文件内容")]
-    public async Task<string> ReadFileAsync(
-        [Description("文件路径")] string filePath)
+    public async Task<string> ReadFileAsync([Description("文件路径")] string filePath)
     {
         try
         {
@@ -93,9 +105,12 @@ public class FileFunction(string gitPath)
     }
 
     /// <summary>
-    /// 从指定行数开始读取文件内容
+    /// 从指定行数开始读取文件内容。
     /// </summary>
-    /// <returns></returns>
+    /// <param name="filePath">文件路径。</param>
+    /// <param name="startLine">开始行号。</param>
+    /// <param name="endLine">结束行号。</param>
+    /// <returns>返回从指定行数开始的文件内容，如果行号无效，返回相应的错误信息。</returns>
     [KernelFunction, Description("从指定行数开始读取文件内容")]
     public async Task<string> ReadFileFromLineAsync(
         [Description("文件路径")] string filePath,

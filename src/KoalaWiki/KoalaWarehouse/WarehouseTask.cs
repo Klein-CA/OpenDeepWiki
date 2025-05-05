@@ -5,6 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KoalaWiki.KoalaWarehouse;
 
+/// <summary>
+/// WarehouseTask 类是一个后台服务，用于处理仓库任务的执行。
+/// 该类负责从仓库存储中读取待处理的仓库，拉取仓库内容，更新数据库状态，并处理文档。
+/// </summary>
 public class WarehouseTask(
     GitService gitService,
     WarehouseStore warehouseStore,
@@ -13,10 +17,14 @@ public class WarehouseTask(
     IServiceProvider service)
     : BackgroundService
 {
+    /// <summary>
+    /// 执行仓库任务的异步方法。
+    /// </summary>
+    /// <param name="stoppingToken">取消操作的令牌</param>
+    /// <returns>表示异步操作的任务</returns>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         // 读取现有的仓库
-
         await using (var scope = service.CreateAsyncScope())
         {
             var dbContext = scope.ServiceProvider.GetService<IKoalaWikiContext>();
