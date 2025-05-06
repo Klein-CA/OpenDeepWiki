@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using System.Text.Json;
+using Newtonsoft.Json;
 using Serilog;
 
 namespace KoalaWiki;
@@ -21,6 +23,22 @@ public sealed class KoalaHttpClientHandler : HttpClientHandler
     {
         // 记录请求开始日志
         Log.Logger.Information("HTTP {Method} {Uri}", request.Method, request.RequestUri);
+
+        var json = JsonConvert.DeserializeObject<dynamic>(await request.Content.ReadAsStringAsync());
+        // 增加max_token，从max_completion_tokens读取
+        if (json != null && json.max_completion_tokens != null)
+        {
+            var maxToken = json.max_completion_tokens;
+            if (maxToken != null)
+            {
+                json.max_tokens = maxToken;
+                json.max_completion_tokens = null;
+            }
+            
+            // 重写请求体
+            request.Content = new StringContent(JsonConvert.SerializeObject(json),
+                System.Text.Encoding.UTF8, "application/json");
+        }
 
         // 1. 启动计时
         var stopwatch = Stopwatch.StartNew();

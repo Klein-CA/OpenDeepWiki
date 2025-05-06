@@ -20,6 +20,7 @@ const RepositoryForm: React.FC<RepositoryFormProps> = ({
   const [modelsFetching, setModelsFetching] = useState(false);
   const [models, setModels] = useState<string[]>([]);
   const [enableGitAuth, setEnableGitAuth] = useState(false);
+  const [isDeepSeekSelected, setIsDeepSeekSelected] = useState(false);
 
   // 当 API 密钥或端点变更时，尝试获取模型列表
   const handleApiConfigChange = async () => {
@@ -77,6 +78,7 @@ const RepositoryForm: React.FC<RepositoryFormProps> = ({
     if (!open) {
       setModels([]);
       setEnableGitAuth(false);
+      setIsDeepSeekSelected(false);
     }
   }, [open]);
 
@@ -88,6 +90,10 @@ const RepositoryForm: React.FC<RepositoryFormProps> = ({
         gitPassword: undefined
       });
     }
+  };
+
+  const handleModelChange = (value: string) => {
+    setIsDeepSeekSelected(value === 'DeepSeek-V3');
   };
 
   return (
@@ -169,8 +175,18 @@ const RepositoryForm: React.FC<RepositoryFormProps> = ({
           name="openAIEndpoint"
           label="OpenAI 端点"
         >
-          <Input
-            placeholder="请输入 OpenAI 端点" />
+          <Space style={{ width: '100%' }}>
+            <Input placeholder="请输入 OpenAI 端点" style={{ flex: 1 }} />
+            {isDeepSeekSelected && (
+              <Button 
+                type="primary" 
+                href="https://account.coreshub.cn/signup?invite=ZmpMQlZxYVU=" 
+                target="_blank"
+              >
+                免费领取5000w token
+              </Button>
+            )}
+          </Space>
         </Form.Item>
 
         <Form.Item
@@ -187,6 +203,7 @@ const RepositoryForm: React.FC<RepositoryFormProps> = ({
           rules={[{ required: true, message: '请选择使用的模型' }]}
         >
           <Select
+            onChange={handleModelChange}
             options={[
               {
                 label: 'gpt-4.1',

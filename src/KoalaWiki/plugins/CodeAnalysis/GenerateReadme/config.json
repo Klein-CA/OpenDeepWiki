@@ -12,6 +12,16 @@
       "name": "catalogue",
       "description": "仓库目录结构",
       "required": true
+    },
+    {
+      "name": "branch",
+      "description": "仓库分支",
+      "required": true
+    },
+    {
+      "name": "git_repository",
+      "description": "仓库地址",
+      "required": true
     }
   ]
 }

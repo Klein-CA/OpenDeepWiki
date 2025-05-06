@@ -1,6 +1,7 @@
 using KoalaWiki.Core.DataAccess;
 using KoalaWiki.Git;
 using KoalaWiki.KoalaWarehouse;
+using KoalaWiki.Memory;
 using KoalaWiki.Provider.PostgreSQL;
 using KoalaWiki.Provider.Sqlite;
 using Mapster;
@@ -21,6 +22,7 @@ builder.Services.WithFast();
 builder.Services.AddSingleton<WarehouseStore>();
 builder.Services.AddSingleton<GitService>();
 builder.Services.AddSingleton<DocumentsService>();
+builder.Services.AddKoalaMemory(builder.Configuration);
 
 builder.Services
     .AddCors(options =>

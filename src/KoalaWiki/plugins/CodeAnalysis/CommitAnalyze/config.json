@@ -47,6 +47,11 @@
       "name": "readme",
       "description": "仓库默认文档内容",
       "required": true
+    },
+    {
+      "name": "branch",
+      "description": "仓库分支",
+      "required": true
     }
   ]
 }

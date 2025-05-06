@@ -126,7 +126,9 @@ public class DocumentsService
                     Temperature = 0.5,
                 })
             {
-                ["catalogue"] = catalogue.ToString()
+                ["catalogue"] = catalogue.ToString(),
+                ["git_repository"] = gitRepository,
+                ["branch"] = warehouse.Branch
             });
 
             readme = generateReadme.ToString();
@@ -149,6 +151,7 @@ public class DocumentsService
         // 开始生成
         var (git, committer) = await GenerateUpdateLogAsync(document.GitPath, readme,
             warehouse.Address,
+            warehouse.Branch,
             kernel);
 
         await dbContext.DocumentCommitRecords.AddAsync(new DocumentCommitRecord()
@@ -163,7 +166,8 @@ public class DocumentsService
 
         if (await dbContext.DocumentOverviews.AnyAsync(x => x.DocumentId == document.Id) == false)
         {
-            var overview = await GenerateProjectOverview(fileKernel, catalogue.ToString(), readme, gitRepository);
+            var overview = await GenerateProjectOverview(fileKernel, catalogue.ToString(), readme, gitRepository,
+                warehouse.Branch);
 
             // 可能需要先处理一下documentation_structure 有些模型不支持json
             var regex = new Regex(@"<blog>(.*?)</blog>",
@@ -199,7 +203,7 @@ public class DocumentsService
             {
                 var chat = kernel.Services.GetService<IChatCompletionService>();
 
-                var str = string.Empty;
+                StringBuilder str = new StringBuilder();
                 var history = new ChatHistory();
                 history.AddUserMessage(Prompt.AnalyzeCatalogue
                     .Replace("{{$catalogue}}", catalogue.ToString())
@@ -210,11 +214,10 @@ public class DocumentsService
                                    {
                                        ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
                                        Temperature = 0.5,
-                                       ResponseFormat = typeof(DocumentResultCatalogue),
-                                       MaxTokens = GetMaxTokens(warehouse.Model)
+                                       MaxTokens = GetMaxTokens(warehouse.Model),
                                    }, fileKernel))
                 {
-                    str += item;
+                    str.Append(item);
                 }
 
                 // 可能需要先处理一下documentation_structure 有些模型不支持json
@@ -225,7 +228,9 @@ public class DocumentsService
                 if (match.Success)
                 {
                     // 提取到的内容
-                    str = match.Groups[1].Value;
+                    var extractedContent = match.Groups[1].Value;
+                    str.Clear();
+                    str.Append(extractedContent);
                 }
 
                 result = JsonConvert.DeserializeObject<DocumentResultCatalogue>(str.ToString().Trim());
@@ -276,7 +281,7 @@ public class DocumentsService
             tasks.Add(Task.Run(async () =>
             {
                 int retryCount = 0;
-                const int retries = 10;
+                const int retries = 5;
                 bool success = false;
 
                 // 收集所有引用源文件
@@ -287,10 +292,10 @@ public class DocumentsService
                 {
                     try
                     {
-                        Log.Logger.Information("处理仓库；{path} ,处理标题：{name}", path, item.Name);
                         await semaphore.WaitAsync();
+                        Log.Logger.Information("处理仓库；{path} ,处理标题：{name}", path, item.Name);
                         var fileItem = await ProcessCatalogueItems(item, fileKernel, catalogue.ToString(), readme,
-                            gitRepository);
+                            gitRepository, warehouse.Branch);
                         documentFileItems.Add(fileItem);
                         success = true;
 
@@ -312,7 +317,7 @@ public class DocumentsService
                         else
                         {
                             // 等待一段时间后重试
-                            await Task.Delay(5000 * retryCount);
+                            await Task.Delay(10000 * retryCount);
                         }
                     }
                     finally
@@ -329,8 +334,11 @@ public class DocumentsService
         // 将解析的目录结构保存到数据库
         await dbContext.DocumentCatalogs.AddRangeAsync(documents);
 
-        //修复Mermaid语法错误
-        RepairMermaid(kernel, documentFileItems);
+        if (Environment.GetEnvironmentVariable("REPAIR_MERMAID") == "1")
+        {
+            //修复Mermaid语法错误
+            RepairMermaid(kernel, documentFileItems);
+        }
 
         await dbContext.DocumentFileItems.AddRangeAsync(documentFileItems);
         // 批量添加fileSource
@@ -363,6 +371,7 @@ public class DocumentsService
         return model switch
         {
             "DeepSeek-V3" => 16384,
+            "QwQ-32B" => 8192,
             "gpt-4.1-mini" => 32768,
             "gpt-4.1" => 32768,
             "gpt-4o" => 16384,
@@ -501,7 +510,7 @@ public class DocumentsService
     /// <param name="kernel">Semantic Kernel 实例，用于调用大模型服务</param>
     /// <returns>包含更新日志内容和最近提交者名称的元组</returns>
     public async Task<(string content, string committer)> GenerateUpdateLogAsync(string gitPath,
-        string readme, string git_repository, Kernel kernel)
+        string readme, string git_repository, string branch, Kernel kernel)
     {
         // 读取git log
         using var repo = new Repository(gitPath, new RepositoryOptions());
@@ -531,19 +540,19 @@ public class DocumentsService
 
         var str = string.Empty;
         await foreach (var item in kernel.InvokeStreamingAsync(plugin, new KernelArguments()
-        {
-            ["readme"] = readme,
-            ["git_repository"] = git_repository,
-            ["commit_message"] = commitMessage
-        }))
+                       {
+                           ["readme"] = readme,
+                           ["git_repository"] = git_repository,
+                           ["commit_message"] = commitMessage,
+                           ["branch"] = branch
+                       }))
         {
             str += item;
         }
 
-        // 可能需要先处理一下documentation_structure 有些模型不支持json
         var regex = new Regex(@"<changelog>(.*?)</changelog>",
             RegexOptions.Singleline);
-        var match = regex.Match(str.ToString());
+        var match = regex.Match(str);
 
         if (match.Success)
         {
@@ -566,7 +575,7 @@ public class DocumentsService
     /// <param name="gitRepository">Git 仓库地址</param>
     /// <returns>生成的项目概述内容</returns>
     private async Task<string> GenerateProjectOverview(Kernel kernel, string catalog,
-        string readme, string gitRepository)
+        string readme, string gitRepository, string branch)
     {
         var sr = new StringBuilder();
 
@@ -580,6 +589,7 @@ public class DocumentsService
 
         history.AddUserMessage(Prompt.Overview.Replace("{{$catalogue}}", catalog)
             .Replace("{{$git_repository}}", gitRepository)
+            .Replace("{{$branch}}", branch)
             .Replace("{{$readme}}", readme));
 
         await foreach (var item in chat.GetStreamingChatMessageContentsAsync(history, settings, kernel))
@@ -617,7 +627,7 @@ public class DocumentsService
     /// <param name="git_repository">Git 仓库地址</param>
     /// <returns>生成的文档文件项</returns>
     private async Task<DocumentFileItem> ProcessCatalogueItems(DocumentCatalog catalog, Kernel kernel, string catalogue,
-        string readme, string git_repository)
+        string readme, string git_repository, string branch)
     {
         var chat = kernel.Services.GetService<IChatCompletionService>();
 
@@ -628,6 +638,7 @@ public class DocumentsService
             .Replace("{{$prompt}}", catalog.Prompt)
             .Replace("{{$readme}}", readme)
             .Replace("{{$git_repository}}", git_repository)
+            .Replace("{{$branch}}", branch)
             .Replace("{{$title}}", catalog.Name));
 
 
@@ -846,52 +857,52 @@ public class DocumentsService
 
                 return true;
             })
-                          let fileInfo = new FileInfo(file)
-                          where fileInfo.Length < 1024 * 1024 * 1
-                          where !file.EndsWith(".png", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".bmp", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".webp", StringComparison.OrdinalIgnoreCase)
-                          where !file.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".so", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".class", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".o", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".a", StringComparison.OrdinalIgnoreCase)
-                          where !file.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".tar", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".xz", StringComparison.OrdinalIgnoreCase)
-                          where !file.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".wav", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".flac", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".aac", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase)
-                          where !file.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".avi", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".mkv", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".mov", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".wmv", StringComparison.OrdinalIgnoreCase)
-                          where !file.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".doc", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".docx", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".ppt", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".pptx", StringComparison.OrdinalIgnoreCase)
-                          where !file.EndsWith(".xls", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".csv", StringComparison.OrdinalIgnoreCase)
-                          where !file.EndsWith(".css", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".scss", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".less", StringComparison.OrdinalIgnoreCase)
-                          where !file.EndsWith(".html", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".htm", StringComparison.OrdinalIgnoreCase)
-                          // 过滤.ico
-                          where !file.EndsWith(".ico", StringComparison.OrdinalIgnoreCase) &&
-                                !file.EndsWith(".svg", StringComparison.OrdinalIgnoreCase)
-                          select new PathInfo { Path = file, Name = fileInfo.Name, Type = "File" });
+            let fileInfo = new FileInfo(file)
+            where fileInfo.Length < 1024 * 1024 * 1
+            where !file.EndsWith(".png", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".gif", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".bmp", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".webp", StringComparison.OrdinalIgnoreCase)
+            where !file.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".so", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".class", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".o", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".a", StringComparison.OrdinalIgnoreCase)
+            where !file.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".tar", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".gz", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".bz2", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".xz", StringComparison.OrdinalIgnoreCase)
+            where !file.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".wav", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".flac", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".aac", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase)
+            where !file.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".avi", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".mkv", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".mov", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".wmv", StringComparison.OrdinalIgnoreCase)
+            where !file.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".doc", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".docx", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".ppt", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".pptx", StringComparison.OrdinalIgnoreCase)
+            where !file.EndsWith(".xls", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".csv", StringComparison.OrdinalIgnoreCase)
+            where !file.EndsWith(".css", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".scss", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".less", StringComparison.OrdinalIgnoreCase)
+            where !file.EndsWith(".html", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".htm", StringComparison.OrdinalIgnoreCase)
+            // 过滤.ico
+            where !file.EndsWith(".ico", StringComparison.OrdinalIgnoreCase) &&
+                  !file.EndsWith(".svg", StringComparison.OrdinalIgnoreCase)
+            select new PathInfo { Path = file, Name = fileInfo.Name, Type = "File" });
 
         // 遍历所有目录，并递归扫描
         foreach (var directory in Directory.GetDirectories(directoryPath))

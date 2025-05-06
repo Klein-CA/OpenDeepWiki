@@ -16,9 +16,10 @@ public class FileFunction(string gitPath)
     /// </summary>
     /// <param name="filePaths">文件路径数组。</param>
     /// <returns>返回一个字典，键为文件路径，值为文件内容。</returns>
-    [KernelFunction, Description("读取指定的文件内容")]
-    [return: Description("返回字典，key是目录名称")]
-    public async Task<Dictionary<string, string>> ReadFilesAsync([Description("文件路径")] string[] filePaths)
+    [KernelFunction, Description("Read the specified file content")]
+    [return: Description("Return the dictionary. The key is the directory name")]
+    public async Task<Dictionary<string, string>> ReadFilesAsync(
+        [Description("File Path")] string[] filePaths)
     {
         try
         {
@@ -66,8 +67,9 @@ public class FileFunction(string gitPath)
     /// </summary>
     /// <param name="filePath">文件路径。</param>
     /// <returns>返回文件内容，如果文件不存在或文件过大，返回相应的错误信息。</returns>
-    [KernelFunction, Description("读取指定的文件内容")]
-    public async Task<string> ReadFileAsync([Description("文件路径")] string filePath)
+    [KernelFunction, Description("Read the specified file content")]
+    public async Task<string> ReadFileAsync(
+        [Description("File Path")] string filePath)
     {
         try
         {
@@ -110,12 +112,12 @@ public class FileFunction(string gitPath)
     /// <param name="filePath">文件路径。</param>
     /// <param name="startLine">开始行号。</param>
     /// <param name="endLine">结束行号。</param>
-    /// <returns>返回从指定行数开始的文件内容，如果行号无效，返回相应的错误信息。</returns>
-    [KernelFunction, Description("从指定行数开始读取文件内容")]
+    /// <returns></returns>
+    [KernelFunction, Description("Read the file content from the specified number of lines")]
     public async Task<string> ReadFileFromLineAsync(
-        [Description("文件路径")] string filePath,
-        [Description("开始行号")] int startLine = 0,
-        [Description("结束行号")] int endLine = 5)
+        [Description("File Path")] string filePath,
+        [Description("Start Line Number")] int startLine = 0,
+        [Description("End Line Number")] int endLine = 5)
     {
         try
         {

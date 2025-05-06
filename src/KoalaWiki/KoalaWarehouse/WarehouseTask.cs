@@ -50,7 +50,7 @@ public class WarehouseTask(
             {
                 // 先拉取仓库
                 var info = GitService.PullRepository(value.Address, value?.GitUserName ?? string.Empty,
-                    value?.GitPassword ?? string.Empty, value?.Email ?? string.Empty);
+                    value?.GitPassword ?? string.Empty, value?.Branch);
 
                 await dbContext!.Warehouses.Where(x => x.Id == value.Id)
                     .ExecuteUpdateAsync(x => x.SetProperty(a => a.Name, info.RepositoryName)

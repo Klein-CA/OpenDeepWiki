@@ -25,10 +25,11 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.SemanticKernel" Version="1.47.0" />
-        <PackageReference Include="Microsoft.SemanticKernel.Connectors.Postgres" Version="1.47.0-preview" />
+        <PackageReference Include="Microsoft.SemanticKernel" Version="1.48.0" />
+        <PackageReference Include="Microsoft.SemanticKernel.Connectors.Postgres" Version="1.48.0-preview" />
+        <PackageReference Include="Microsoft.SemanticKernel.Connectors.Sqlite" Version="1.48.0-preview" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="Scalar.AspNetCore" Version="2.2.1" />
+        <PackageReference Include="Scalar.AspNetCore" Version="2.2.7" />
         <PackageReference Include="Serilog" Version="4.2.0" />
         <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
         <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.1" />

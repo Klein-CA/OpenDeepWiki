@@ -7,6 +7,8 @@ Here is the catalogue structure of the repository:
 <catalogue>
 {{$catalogue}}
 </catalogue>
+branch：{{$branch}}
+git_repository：{{$git_repository}}
 
 To collect information about the files in the repository, you can access the function I provide. Use this function to read the contents of the specific files mentioned in the directory. This function accepts the file path as a parameter and returns the content of the file.
 

@@ -10,6 +10,9 @@ You are an AI assistant specializing in analyzing repository commit messages to 
 <git_repository>
 {{$git_repository}}
 </git_repository>
+<git_branch>
+{{$branch}}
+</git_branch>
 
 <readme>
 {{$readme}}

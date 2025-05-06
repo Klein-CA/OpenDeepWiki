@@ -61,6 +61,14 @@ public class GitService
         {
             // 获取当前仓库的git分支
             using var repo = new Repository(localPath);
+            
+            // 判断仓库是否已经克隆
+            if (!repo.Network.Remotes.Any())
+            {
+                // 如果没有克隆，则克隆
+                var str = Repository.Clone(repositoryUrl, localPath, cloneOptions);
+            }
+
             var branchName = repo.Head.FriendlyName;
             // 获取当前仓库的git版本
             var version = repo.Head.Tip.Sha;

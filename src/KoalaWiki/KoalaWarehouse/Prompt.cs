@@ -108,6 +108,10 @@ public static class Prompt
       
       The directory structure must balance repository organization with user-centric information architecture. All content must be derived exclusively from the provided repository context.
       
+      
+      All the analysis data need to be read from the file using the provided file function.
+      No explanation or reply. Just provide the json string
+      
       Respond with the complete documentation structure in the format below:
       
       <documentation_structure>
@@ -128,8 +132,6 @@ public static class Prompt
          ]
       }
       </documentation_structure>
-      
-      All the analysis data need to be read from the file using the provided file function.
       """;
    
     public const string DefaultPrompt = 
@@ -143,6 +145,10 @@ public static class Prompt
         <git_repository>
         {{$git_repository}}
         </git_repository>
+        
+        <git_branch>
+        {{$branch}}
+        </git_branch>
         
         <catalogue>
         {{$catalogue}}
@@ -468,6 +474,9 @@ All data analysis requires the use of the provided file functions to read the co
 <git_repository>
 {{$git_repository}}
 </git_repository>
+<git_branch>
+{{$branch}}
+</git_branch>
 
 <analysis_phases>
 PHASE 1: README ANALYSIS

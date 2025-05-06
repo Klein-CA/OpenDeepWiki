@@ -12,17 +12,41 @@ namespace KoalaWiki;
 /// </summary>
 public class KernelFactory
 {
+    public static Kernel GetKernel(string embeddingEndpoint,
+        string embeddingApiKey,
+        string embeddingModel)
+    {
+        var kernelBuilder = Kernel.CreateBuilder();
+
+        kernelBuilder.Services.AddSerilog(Log.Logger);
+
+        kernelBuilder.AddOpenAIChatCompletion(embeddingModel, new Uri(embeddingEndpoint), embeddingApiKey,
+            httpClient: new HttpClient(new KoalaHttpClientHandler()
+            {
+                AllowAutoRedirect = true,
+                MaxAutomaticRedirections = 5,
+                MaxConnectionsPerServer = 200,
+            })
+            {
+                Timeout = TimeSpan.FromSeconds(16000),
+            });
+
+        var kernel = kernelBuilder.Build();
+
+        return kernel;
+    }
+
     /// <summary>
     /// 获取配置好的 Semantic Kernel 实例。
     /// </summary>
     /// <param name="chatEndpoint">OpenAI 聊天服务的终结点</param>
-    /// <param name="chatApiKey">OpenAI 聊天服务的 API 密钥</param>
+    /// <param name="embeddingApiKey">OpenAI 聊天服务的 API 密钥</param>
     /// <param name="gitPath">Git 仓库路径</param>
     /// <param name="model">使用的模型名称，默认为 "gpt-4.1"</param>
     /// <param name="isCodeAnalysis">是否启用代码分析插件，默认为 true</param>
     /// <returns>配置好的 Semantic Kernel 实例</returns>
     public static Kernel GetKernel(string chatEndpoint,
-        string chatApiKey,
+        string embeddingApiKey,
         string gitPath,
         string model = "gpt-4.1", bool isCodeAnalysis = true)
     {
@@ -31,8 +55,7 @@ public class KernelFactory
         // 添加 Serilog 日志服务
         kernelBuilder.Services.AddSerilog(Log.Logger);
 
-        // 添加 OpenAI 聊天完成功能
-        kernelBuilder.AddOpenAIChatCompletion(model, new Uri(chatEndpoint), chatApiKey,
+        kernelBuilder.AddOpenAIChatCompletion(model, new Uri(chatEndpoint), embeddingApiKey,
             httpClient: new HttpClient(new KoalaHttpClientHandler()
             {
                 // 添加重试配置
