@@ -22,6 +22,92 @@ namespace KoalaWiki.Provider.PostgreSQL.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("KoalaWiki.Domains.ChatShareMessage", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Ip")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeep")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("WarehouseId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("ChatShareMessages");
+                });
+
+            modelBuilder.Entity("KoalaWiki.Domains.ChatShareMessageItem", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ChatShareMessageId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("CompletionToken")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Files")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("PromptToken")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Think")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("TotalTime")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("WarehouseId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatShareMessageId");
+
+                    b.HasIndex("Question");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("ChatShareMessageItems");
+                });
+
             modelBuilder.Entity("KoalaWiki.Entities.Document", b =>
                 {
                     b.Property<string>("Id")
@@ -175,6 +261,9 @@ namespace KoalaWiki.Provider.PostgreSQL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsEmbedded")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Metadata")
                         .IsRequired()
                         .HasColumnType("text");
@@ -296,19 +385,10 @@ namespace KoalaWiki.Provider.PostgreSQL.Migrations
                     b.Property<string>("GitUserName")
                         .HasColumnType("text");
 
-                    b.Property<string>("Model")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<bool>("IsEmbedded")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("OpenAIEndpoint")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("OpenAIKey")
                         .IsRequired()
                         .HasColumnType("text");
 

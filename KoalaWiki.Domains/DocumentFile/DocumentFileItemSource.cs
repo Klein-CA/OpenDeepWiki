@@ -1,4 +1,6 @@
-﻿namespace KoalaWiki.Entities.DocumentFile;
+﻿using KoalaWiki.Domains;
+
+namespace KoalaWiki.Entities.DocumentFile;
 
 /// <summary>
 /// DocumentFileItemSource 类表示文档文件项的源文件实体，继承自 Entity 基类。

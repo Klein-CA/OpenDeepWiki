@@ -2,6 +2,7 @@
 using KoalaWiki.Core.DataAccess;
 using KoalaWiki.Dto;
 using KoalaWiki.Entities;
+using KoalaWiki.Functions;
 using KoalaWiki.KoalaWarehouse;
 using LibGit2Sharp;
 using MapsterMapper;
@@ -165,5 +166,25 @@ public class WarehouseService(IKoalaWikiContext access, IMapper mapper, Warehous
             .ToListAsync();
 
         return new PageDto<Warehouse>(total, list);
+    }
+
+    [EndpointSummary("获取指定仓库代码文件")]
+    public async Task<ResultDto<string>> GetFileContent(string warehouseId, string path)
+    {
+        var query = await access.Documents
+            .AsNoTracking()
+            .Where(x => x.WarehouseId == warehouseId)
+            .FirstOrDefaultAsync();
+
+        if (query == null)
+        {
+            throw new NotFoundException("文件不存在");
+        }
+
+        var fileFunction = new FileFunction(query.GitPath);
+
+        var result = await fileFunction.ReadFileAsync(path);
+
+        return ResultDto<string>.Success(result);
     }
 }

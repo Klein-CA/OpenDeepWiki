@@ -1,4 +1,6 @@
-﻿namespace KoalaWiki.Entities;
+﻿using KoalaWiki.Domains;
+
+namespace KoalaWiki.Entities;
 
 public class Document : Entity<string>
 {

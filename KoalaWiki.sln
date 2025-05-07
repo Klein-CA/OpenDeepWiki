@@ -7,6 +7,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{25263893-E043-4F54-A41B-D97FACE64062}"
 	ProjectSection(SolutionItems) = preProject
 		docker-compose.yml = docker-compose.yml
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoalaWiki.Core", "KoalaWiki.Core\KoalaWiki.Core.csproj", "{8E887B45-75E2-4264-B5DE-93C9E206495E}"

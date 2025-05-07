@@ -1,18 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { 
-  Typography, 
-  Layout, 
-  Card, 
-  Row, 
-  Col, 
-  Space, 
-  Statistic, 
-  Empty, 
-  Spin, 
-  Avatar, 
-  Divider, 
+import {
+  Typography,
+  Layout,
+  Card,
+  Row,
+  Col,
+  Space,
+  Statistic,
+  Empty,
+  Spin,
+  Avatar,
+  Divider,
   Breadcrumb,
   Input,
   theme,
@@ -22,9 +22,9 @@ import {
   Progress,
   List
 } from 'antd';
-import { 
-  TeamOutlined, 
-  GithubOutlined, 
+import {
+  TeamOutlined,
+  GithubOutlined,
   DatabaseOutlined,
   HomeOutlined,
   SearchOutlined,
@@ -40,7 +40,7 @@ import Link from 'next/link';
 import { Repository } from '../types';
 import { getWarehouse } from '../services/warehouseService';
 import RepositoryList from '../components/RepositoryList';
-
+import { usePathname } from 'next/navigation';
 const { Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
@@ -48,8 +48,10 @@ const { useToken } = theme;
 
 export default function OrganizationPage({ params }: any) {
   const { token } = useToken();
-  const { owner } = params;
-  
+  const pathname = usePathname();
+  const pathParts = pathname.split('/').filter(Boolean);
+  const owner = pathParts[0] || '';
+
   const [repositories, setRepositories] = useState<Repository[]>([]);
   const [filteredRepositories, setFilteredRepositories] = useState<Repository[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,8 +77,8 @@ export default function OrganizationPage({ params }: any) {
   // 过滤仓库
   useEffect(() => {
     if (repositories.length > 0) {
-      const filtered = repositories.filter(repo => 
-        repo.name.toLowerCase().includes(searchValue.toLowerCase()) || 
+      const filtered = repositories.filter(repo =>
+        repo.name.toLowerCase().includes(searchValue.toLowerCase()) ||
         repo.address.toLowerCase().includes(searchValue.toLowerCase())
       );
       setFilteredRepositories(filtered);
@@ -89,7 +91,7 @@ export default function OrganizationPage({ params }: any) {
     try {
       // 尝试获取 GitHub 组织信息
       const response = await fetch(`https://api.github.com/orgs/${owner}`);
-      
+
       if (response.ok) {
         const data = await response.json();
         setOrgInfo(data);
@@ -140,7 +142,7 @@ export default function OrganizationPage({ params }: any) {
             return false;
           }
         });
-        
+
         setRepositories(orgRepos);
         setFilteredRepositories(orgRepos);
         setTotal(orgRepos.length);
@@ -172,20 +174,20 @@ export default function OrganizationPage({ params }: any) {
     <Content style={{ padding: token.padding, background: token.colorBgLayout }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         {/* 面包屑导航 */}
-        <Breadcrumb 
+        <Breadcrumb
           items={[
             { title: <Link href="/"><HomeOutlined /></Link> },
             { title: owner }
           ]}
           style={{ marginBottom: token.marginMD }}
         />
-        
+
         {/* 组织信息卡片 */}
-        <Card 
-          style={{ 
-            borderRadius: token.borderRadiusLG, 
+        <Card
+          style={{
+            borderRadius: token.borderRadiusLG,
             marginBottom: token.marginLG,
-            background: token.colorBgContainer 
+            background: token.colorBgContainer
           }}
           loading={orgInfoLoading}
         >
@@ -193,9 +195,9 @@ export default function OrganizationPage({ params }: any) {
             <Col xs={24} md={16}>
               <Space align="start" size={token.marginLG}>
                 {avatarUrl && (
-                  <Avatar 
-                    src={avatarUrl} 
-                    size={64} 
+                  <Avatar
+                    src={avatarUrl}
+                    size={64}
                     style={{ border: `1px solid ${token.colorBorderSecondary}` }}
                     icon={<UserOutlined />}
                   />
@@ -210,9 +212,9 @@ export default function OrganizationPage({ params }: any) {
                     </Tag>
                     {!orgInfo?.isDefault && (
                       <Tooltip title="访问 GitHub">
-                        <a 
-                          href={`https://github.com/${owner}`} 
-                          target="_blank" 
+                        <a
+                          href={`https://github.com/${owner}`}
+                          target="_blank"
                           rel="noopener noreferrer"
                           style={{ color: token.colorPrimary }}
                         >
@@ -221,10 +223,10 @@ export default function OrganizationPage({ params }: any) {
                       </Tooltip>
                     )}
                   </Space>
-                  <Paragraph 
-                    type="secondary" 
-                    style={{ 
-                      fontSize: token.fontSizeLG, 
+                  <Paragraph
+                    type="secondary"
+                    style={{
+                      fontSize: token.fontSizeLG,
                       marginTop: token.marginXS,
                       maxWidth: '100%'
                     }}
@@ -237,24 +239,24 @@ export default function OrganizationPage({ params }: any) {
             <Col xs={24} md={8}>
               <Row gutter={[16, 16]}>
                 <Col span={8}>
-                  <Statistic 
-                    title={<Typography.Text type="secondary">仓库总数</Typography.Text>} 
-                    value={stats.totalRepositories} 
-                    prefix={<DatabaseOutlined style={{ color: token.colorPrimary }} />} 
+                  <Statistic
+                    title={<Typography.Text type="secondary">仓库总数</Typography.Text>}
+                    value={stats.totalRepositories}
+                    prefix={<DatabaseOutlined style={{ color: token.colorPrimary }} />}
                   />
                 </Col>
                 <Col span={8}>
-                  <Statistic 
-                    title={<Typography.Text type="secondary">Git仓库</Typography.Text>} 
-                    value={stats.gitRepos} 
-                    prefix={<GithubOutlined style={{ color: token.colorPrimary }} />} 
+                  <Statistic
+                    title={<Typography.Text type="secondary">Git仓库</Typography.Text>}
+                    value={stats.gitRepos}
+                    prefix={<GithubOutlined style={{ color: token.colorPrimary }} />}
                   />
                 </Col>
                 <Col span={8}>
-                  <Statistic 
-                    title={<Typography.Text type="secondary">已完成</Typography.Text>} 
-                    value={stats.completedRepos} 
-                    prefix={<CodeOutlined style={{ color: token.colorPrimary }} />} 
+                  <Statistic
+                    title={<Typography.Text type="secondary">已完成</Typography.Text>}
+                    value={stats.completedRepos}
+                    prefix={<CodeOutlined style={{ color: token.colorPrimary }} />}
                   />
                 </Col>
               </Row>
@@ -263,16 +265,16 @@ export default function OrganizationPage({ params }: any) {
 
           {/* 详细信息部分 */}
           <Divider style={{ margin: `${token.marginMD}px 0` }} />
-          
-          <Descriptions 
-            title="详细信息" 
-            bordered 
+
+          <Descriptions
+            title="详细信息"
+            bordered
             column={{ xs: 1, sm: 2, md: 3 }}
             size="small"
             labelStyle={{ width: '120px' }}
           >
-            <Descriptions.Item 
-              label="创建时间" 
+            <Descriptions.Item
+              label="创建时间"
               span={1}
             >
               <Space>
@@ -280,7 +282,7 @@ export default function OrganizationPage({ params }: any) {
                 {orgInfo?.created_at ? formatDate(orgInfo.created_at) : '未知'}
               </Space>
             </Descriptions.Item>
-            <Descriptions.Item 
+            <Descriptions.Item
               label="最近更新"
               span={1}
             >
@@ -289,7 +291,7 @@ export default function OrganizationPage({ params }: any) {
                 {stats.lastUpdated}
               </Space>
             </Descriptions.Item>
-            <Descriptions.Item 
+            <Descriptions.Item
               label="类型"
               span={1}
             >
@@ -298,7 +300,7 @@ export default function OrganizationPage({ params }: any) {
                 {orgInfo?.isUser ? '个人用户' : '组织账户'}
               </Space>
             </Descriptions.Item>
-            
+
             {orgInfo?.location && (
               <Descriptions.Item label="位置" span={orgInfo?.blog ? 2 : 3}>
                 <Space>
@@ -307,7 +309,7 @@ export default function OrganizationPage({ params }: any) {
                 </Space>
               </Descriptions.Item>
             )}
-            
+
             {orgInfo?.blog && (
               <Descriptions.Item label="网站" span={orgInfo?.location ? 1 : 3}>
                 <Space>
@@ -318,7 +320,7 @@ export default function OrganizationPage({ params }: any) {
                 </Space>
               </Descriptions.Item>
             )}
-            
+
             {orgInfo?.bio && (
               <Descriptions.Item label="简介" span={3}>
                 {orgInfo.bio}
@@ -326,19 +328,19 @@ export default function OrganizationPage({ params }: any) {
             )}
           </Descriptions>
         </Card>
-        
+
         {/* 组织/用户文档 */}
-        <Card 
+        <Card
           title={
             <Space>
               <FileTextOutlined style={{ color: token.colorPrimary }} />
               <span>文档概览</span>
             </Space>
           }
-          style={{ 
-            borderRadius: token.borderRadiusLG, 
+          style={{
+            borderRadius: token.borderRadiusLG,
             marginBottom: token.marginLG,
-            background: token.colorBgContainer 
+            background: token.colorBgContainer
           }}
         >
           <Row gutter={[24, 24]}>
@@ -347,14 +349,14 @@ export default function OrganizationPage({ params }: any) {
               <Paragraph>
                 {orgInfo?.description || orgInfo?.bio || `${owner} 是一个代码仓库集合，提供了各种项目的源代码和文档。`}
               </Paragraph>
-              
+
               <Divider style={{ margin: `${token.marginMD}px 0` }} />
-              
+
               <Title level={4}>快速链接</Title>
               <Row gutter={[16, 16]}>
                 <Col xs={24} sm={12}>
-                  <Card 
-                    size="small" 
+                  <Card
+                    size="small"
                     hoverable
                     onClick={() => window.open(`https://github.com/${owner}`, '_blank')}
                   >
@@ -369,11 +371,11 @@ export default function OrganizationPage({ params }: any) {
                     </Space>
                   </Card>
                 </Col>
-                
+
                 {repositories.length > 0 && (
                   <Col xs={24} sm={12}>
-                    <Card 
-                      size="small" 
+                    <Card
+                      size="small"
                       hoverable
                       onClick={() => {
                         const firstRepo = repositories[0];
@@ -398,9 +400,9 @@ export default function OrganizationPage({ params }: any) {
                   </Col>
                 )}
               </Row>
-              
+
               <Divider style={{ margin: `${token.marginMD}px 0` }} />
-              
+
               <Title level={4}>使用指南</Title>
               <Paragraph>
                 您可以通过点击下方仓库列表中的仓库查看详细文档。每个仓库都包含了由 AI 自动生成的全面文档，帮助您理解代码结构和工作原理。
@@ -423,7 +425,7 @@ export default function OrganizationPage({ params }: any) {
                 </li>
               </ul>
             </Col>
-            
+
             <Col xs={24} md={8}>
               <Card
                 title="文档统计"
@@ -442,12 +444,12 @@ export default function OrganizationPage({ params }: any) {
                   prefix={<FileTextOutlined style={{ color: token.colorPrimary }} />}
                   style={{ marginBottom: token.marginSM }}
                 />
-                <Progress 
-                  percent={stats.totalRepositories > 0 ? Math.round((stats.completedRepos / stats.totalRepositories) * 100) : 0} 
+                <Progress
+                  percent={stats.totalRepositories > 0 ? Math.round((stats.completedRepos / stats.totalRepositories) * 100) : 0}
                   status="active"
                 />
               </Card>
-              
+
               {loading ? (
                 <Spin />
               ) : repositories.length > 0 ? (
@@ -480,9 +482,9 @@ export default function OrganizationPage({ params }: any) {
                           return { owner: '', name: repo.name };
                         }
                       };
-                      
+
                       const repoInfo = getRepoInfo(repo.address);
-                      
+
                       return (
                         <List.Item>
                           <Link href={`/${repoInfo.owner}/${repoInfo.name}`}>
@@ -505,7 +507,7 @@ export default function OrganizationPage({ params }: any) {
             </Col>
           </Row>
         </Card>
-        
+
         {/* 仓库列表 */}
         <div style={{ marginBottom: token.marginMD }}>
           <Space style={{ width: '100%', justifyContent: 'space-between', marginBottom: token.marginMD }}>
@@ -519,9 +521,9 @@ export default function OrganizationPage({ params }: any) {
               prefix={<SearchOutlined />}
             />
           </Space>
-          
+
           <Divider style={{ margin: `${token.marginSM}px 0` }} />
-          
+
           {loading ? (
             <div style={{ textAlign: 'center', padding: token.paddingLG }}>
               <Spin size="large" />

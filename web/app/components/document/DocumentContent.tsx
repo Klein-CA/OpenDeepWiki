@@ -7,11 +7,6 @@ import rehypeKatex from 'rehype-katex';
 
 import React, { useEffect, useRef } from 'react';
 import { Markdown } from '@lobehub/ui';
-import { Card, Divider, Space, Tag, Typography } from 'antd';
-import { BookOutlined, LinkOutlined } from '@ant-design/icons';
-import mermaid from 'mermaid';
-
-const { Text } = Typography;
 
 interface DocumentContentProps {
   document: any;
@@ -37,14 +32,6 @@ const DocumentContent: React.FC<DocumentContentProps> = ({
     });
   }, [document?.content]);
 
-  // 复制文章链接
-  const copyPageLink = () => {
-    navigator.clipboard.writeText(window.location.href)
-      .catch(err => {
-        console.error('复制失败:', err);
-      });
-  };
-
   const customRender = (node: any) => {
     return node;
   };
@@ -63,6 +50,11 @@ const DocumentContent: React.FC<DocumentContentProps> = ({
           enableMermaid
           enableCustomFootnotes
           allowHtml
+          componentProps={{
+            mermaid:{
+              fullFeatured: true,
+            }
+          }}
           customRender={customRender}
           title={document?.title}
           remarkPlugins={[remarkGfm, remarkToc, remarkMath]}
@@ -101,12 +93,6 @@ const DocumentContent: React.FC<DocumentContentProps> = ({
         
         .markdown-content h3 {
           font-size: 20px;
-        }
-        
-        .markdown-content p {
-          margin-bottom: 16px;
-          line-height: 1.8;
-          font-size: 16px;
         }
         
         .markdown-content a {

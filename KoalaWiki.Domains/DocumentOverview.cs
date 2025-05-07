@@ -1,4 +1,6 @@
-﻿namespace KoalaWiki.Entities;
+﻿using KoalaWiki.Domains;
+
+namespace KoalaWiki.Entities;
 
 /// <summary>
 /// DocumentOverview 类表示文档概览实体，继承自 Entity 基类。

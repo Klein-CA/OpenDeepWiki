@@ -1,4 +1,6 @@
-﻿namespace KoalaWiki.Entities;
+﻿using KoalaWiki.Entities;
+
+namespace KoalaWiki.Domains;
 
 /// <summary>
 /// Entity 类是一个泛型实体基类，用于表示具有唯一标识符和创建时间戳的实体。

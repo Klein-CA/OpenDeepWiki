@@ -101,8 +101,6 @@ const LastRepoModal: React.FC<LastRepoModalProps> = ({ open, onCancel }) => {
       onCancel={handleCancel}
       footer={null}
       width={{ xs: '90%', sm: 520, md: 600 }}
-      bodyStyle={{ padding: token.paddingLG }}
-      maskStyle={{ backgroundColor: token.colorBgMask }}
       centered
     >
       <Form form={form} layout="vertical">

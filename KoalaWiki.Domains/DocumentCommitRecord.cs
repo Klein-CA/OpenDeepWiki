@@ -1,4 +1,6 @@
-﻿namespace KoalaWiki.Entities;
+﻿using KoalaWiki.Domains;
+
+namespace KoalaWiki.Entities;
 
 /// <summary>
 /// DocumentCommitRecord 类表示文档提交记录实体，继承自 Entity 基类。

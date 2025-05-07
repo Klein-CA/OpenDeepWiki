@@ -4,7 +4,7 @@ interface ApiResponse<T> {
   data?: T;
   error?: string;
   success: boolean;
-  isSuccess?:boolean;
+  isSuccess?: boolean;
   message?: string;
 }
 
@@ -102,5 +102,63 @@ async function fetchApi<T>(
   }
 }
 
-export { fetchApi, serverFetchApi, clientFetchApi };
+// SSE 辅助函数
+async function* fetchSSE(url: string, data: any): AsyncIterableIterator<any> {
+  const token = localStorage.getItem("token");
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+
+  const response = await window.fetch(url, {
+    headers,
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    try {
+      const json = JSON.parse(errorText);
+      if (!json.success) {
+        console.log(json);
+        
+      }
+      throw new Error(json.message || 'API请求失败');
+    } catch {
+      throw new Error(errorText || '网络请求失败');
+    }
+  }
+
+  const reader = response.body!.getReader();
+  const decoder = new TextDecoder("utf-8");
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      const events = chunk.split("\n\n");
+
+      for (const event of events) {
+        if (event.trim()) {
+          const dataLine = event.split("\n").find(line => line.startsWith("data:"));
+          if (dataLine) {
+            const jsonData = dataLine.replace("data:", "").trim();
+            if (jsonData === "[done]") {
+              break;
+            }
+            yield JSON.parse(jsonData);
+          }
+        }
+      }
+    }
+  } finally {
+    reader.cancel();
+  }
+}
+const API_URL = process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || '';
+
+export { fetchApi, serverFetchApi, clientFetchApi, API_URL ,fetchSSE};
 export type { ApiResponse }; 

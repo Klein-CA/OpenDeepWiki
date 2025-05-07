@@ -1,4 +1,6 @@
-﻿namespace KoalaWiki.Entities;
+﻿using KoalaWiki.Domains;
+
+namespace KoalaWiki.Entities;
 
 public class Warehouse : Entity<string>
 {
@@ -70,17 +72,22 @@ public class Warehouse : Entity<string>
     public string? Version { get; set; }
 
     /// <summary>
-    /// 使用模型
+    /// 是否嵌入完成
     /// </summary>
-    public string Model { get; set; } = string.Empty;
+    public bool IsEmbedded { get; set; }
 
-    /// <summary>
-    /// OpenAI 密钥
-    /// </summary>
-    public string OpenAIKey { get; set; } = string.Empty;
-
-    /// <summary>
-    /// OpenAI 端点
-    /// </summary>
-    public string OpenAIEndpoint { get; set; } = string.Empty;
+    // /// <summary>
+    // /// 使用模型
+    // /// </summary>
+    // public string Model { get; set; } = string.Empty;
+    //
+    // /// <summary>
+    // /// OpenAI 密钥
+    // /// </summary>
+    // public string OpenAIKey { get; set; } = string.Empty;
+    //
+    // /// <summary>
+    // /// OpenAI 端点
+    // /// </summary>
+    // public string OpenAIEndpoint { get; set; } = string.Empty;
 }

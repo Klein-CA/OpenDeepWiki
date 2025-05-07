@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using KoalaWiki.Domains;
 
 namespace KoalaWiki.Entities;
 

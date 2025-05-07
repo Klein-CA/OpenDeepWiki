@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using KoalaWiki.Domains;
 using KoalaWiki.Entities;
 using KoalaWiki.Entities.DocumentFile;
 using Microsoft.EntityFrameworkCore;
@@ -15,37 +16,37 @@ public interface IKoalaWikiContext
     /// <summary>
     /// 获取或设置仓库实体的数据库集合。
     /// </summary>
-    DbSet<Warehouse> Warehouses { get; set; }
+    public DbSet<Warehouse> Warehouses { get; set; }
 
     /// <summary>
     /// 获取或设置文档目录实体的数据库集合。
     /// </summary>
-    DbSet<DocumentCatalog> DocumentCatalogs { get; set; }
+    public DbSet<DocumentCatalog> DocumentCatalogs { get; set; }
 
     /// <summary>
     /// 获取或设置文档实体的数据库集合。
     /// </summary>
-    DbSet<Document> Documents { get; set; }
+    public DbSet<Document> Documents { get; set; }
 
     /// <summary>
     /// 获取或设置文档文件项实体的数据库集合。
     /// </summary>
-    DbSet<DocumentFileItem> DocumentFileItems { get; set; }
+    public DbSet<DocumentFileItem> DocumentFileItems { get; set; }
 
     /// <summary>
     /// 获取或设置文档文件项源实体的数据库集合。
     /// </summary>
-    DbSet<DocumentFileItemSource> DocumentFileItemSources { get; set; }
+    public DbSet<DocumentFileItemSource> DocumentFileItemSources { get; set; }
 
     /// <summary>
     /// 获取或设置文档概览实体的数据库集合。
     /// </summary>
-    DbSet<DocumentOverview> DocumentOverviews { get; set; }
+    public DbSet<DocumentOverview> DocumentOverviews { get; set; }
 
     /// <summary>
     /// 获取或设置文档提交记录实体的数据库集合。
     /// </summary>
-    DbSet<DocumentCommitRecord> DocumentCommitRecords { get; set; }
+    public DbSet<DocumentCommitRecord> DocumentCommitRecords { get; set; }
 
     /// <summary>
     /// 异步保存所有对数据库的更改。

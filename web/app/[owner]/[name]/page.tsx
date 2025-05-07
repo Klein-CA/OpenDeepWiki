@@ -4,18 +4,23 @@ import { Suspense, useEffect, useState } from 'react';
 import { getWarehouseOverview } from '../../services';
 import { RepositoryView } from './RepositoryView';
 import { ServerLoadingErrorState } from '../../components/document/ServerComponents';
+import { usePathname } from 'next/navigation';
 
 export default function RepositoryPage({ params }: any) {
   try {
-    const { owner, name } = params;
-    
+    const pathname = usePathname();
+
+    const pathParts = pathname.split('/').filter(Boolean);
+    const owner = pathParts[0] || '';
+    const name = pathParts[1] || '';
+
     if (!owner || !name) {
       throw new Error('Missing owner or repository name');
     }
     const [response, setResponse] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    
+
     useEffect(() => {
       const fetchData = async () => {
         try {
@@ -27,7 +32,7 @@ export default function RepositoryPage({ params }: any) {
           setLoading(false);
         }
       };
-      
+
       fetchData();
     }, [owner, name]);
 

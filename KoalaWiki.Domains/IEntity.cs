@@ -1,4 +1,4 @@
-﻿namespace KoalaWiki.Entities;
+﻿namespace KoalaWiki.Domains;
 
 public interface IEntity<TKey>
 {

@@ -13,7 +13,7 @@ fi
 
 echo "Building frontend image..."
 pushd web > /dev/null
-docker build -t crpi-j9ha7sxwhatgtvj4.cn-shenzhen.personal.cr.aliyuncs.com/koala-ai/koala-wiki-web -f Dockerfile .
+docker build -t crpi-j9ha7sxwhatgtvj4.cn-shenzhen.personal.cr.aliyuncs.com/koala-ai/koala-wiki-web -f Dockerfile ./web
 if [ $? -ne 0 ]; then
     echo "Error building frontend image!"
     exit 1

@@ -31,6 +31,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { documentCatalog } from '../../services/warehouseService';
+import AIInputBar from '../../components/AIInputBar';
 
 const { Header, Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -72,17 +73,15 @@ const generateMenuItems = (
 
 export default function RepositoryLayout({
   children,
-  params,
 }: {
   children: React.ReactNode;
-  params: { owner: string; name: string };
 }) {
   const pathname = usePathname();
   const { token } = theme.useToken();
 
   const pathParts = pathname.split('/').filter(Boolean);
-  const owner = params.owner || pathParts[0] || '';
-  const name = params.name || pathParts[1] || '';
+  const owner = pathParts[0] || '';
+  const name = pathParts[1] || '';
   const currentPath = pathParts.slice(2).join('/');
 
   const [catalogData, setCatalogData] = useState<any>(null);
@@ -414,6 +413,10 @@ export default function RepositoryLayout({
           </Content>
         </Layout>
       </Layout>
+      <AIInputBar 
+        owner={owner}
+        name={name}
+      />
     </ConfigProvider>
   );
 } 

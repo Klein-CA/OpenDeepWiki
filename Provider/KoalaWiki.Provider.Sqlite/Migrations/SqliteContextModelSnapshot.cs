@@ -17,6 +17,92 @@ namespace KoalaWiki.Provider.Sqlite.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
 
+            modelBuilder.Entity("KoalaWiki.Domains.ChatShareMessage", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Ip")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeep")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("WarehouseId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("ChatShareMessages");
+                });
+
+            modelBuilder.Entity("KoalaWiki.Domains.ChatShareMessageItem", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ChatShareMessageId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("CompletionToken")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Files")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("PromptToken")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Think")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TotalTime")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("WarehouseId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatShareMessageId");
+
+                    b.HasIndex("Question");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("ChatShareMessageItems");
+                });
+
             modelBuilder.Entity("KoalaWiki.Entities.Document", b =>
                 {
                     b.Property<string>("Id")
@@ -170,6 +256,9 @@ namespace KoalaWiki.Provider.Sqlite.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsEmbedded")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Metadata")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -291,19 +380,10 @@ namespace KoalaWiki.Provider.Sqlite.Migrations
                     b.Property<string>("GitUserName")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Model")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<bool>("IsEmbedded")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OpenAIEndpoint")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OpenAIKey")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using KoalaWiki.Domains;
 
 namespace KoalaWiki.Entities.DocumentFile;
 
@@ -45,6 +46,11 @@ public class DocumentFileItem : Entity<string>
     /// 响应token
     /// </summary>
     public int ResponseToken { get; set; }
+   
+    /// <summary>
+    /// 是否嵌入完成
+    /// </summary>
+    public bool IsEmbedded { get; set; }
     
     /// <summary>
     /// 相关源文件
