@@ -16,37 +16,47 @@ public interface IKoalaWikiContext
     /// <summary>
     /// 获取或设置仓库实体的数据库集合。
     /// </summary>
-    public DbSet<Warehouse> Warehouses { get; set; }
+    DbSet<Warehouse> Warehouses { get; set; }
 
     /// <summary>
     /// 获取或设置文档目录实体的数据库集合。
     /// </summary>
-    public DbSet<DocumentCatalog> DocumentCatalogs { get; set; }
+    DbSet<DocumentCatalog> DocumentCatalogs { get; set; }
 
     /// <summary>
     /// 获取或设置文档实体的数据库集合。
     /// </summary>
-    public DbSet<Document> Documents { get; set; }
+    DbSet<Document> Documents { get; set; }
 
     /// <summary>
     /// 获取或设置文档文件项实体的数据库集合。
     /// </summary>
-    public DbSet<DocumentFileItem> DocumentFileItems { get; set; }
+    DbSet<DocumentFileItem> DocumentFileItems { get; set; }
 
     /// <summary>
     /// 获取或设置文档文件项源实体的数据库集合。
     /// </summary>
-    public DbSet<DocumentFileItemSource> DocumentFileItemSources { get; set; }
+    DbSet<DocumentFileItemSource> DocumentFileItemSources { get; set; }
 
     /// <summary>
     /// 获取或设置文档概览实体的数据库集合。
     /// </summary>
-    public DbSet<DocumentOverview> DocumentOverviews { get; set; }
+    DbSet<DocumentOverview> DocumentOverviews { get; set; }
 
     /// <summary>
     /// 获取或设置文档提交记录实体的数据库集合。
     /// </summary>
-    public DbSet<DocumentCommitRecord> DocumentCommitRecords { get; set; }
+    DbSet<DocumentCommitRecord> DocumentCommitRecords { get; set; }
+
+    /// <summary>
+    /// 获取或设置聊天共享消息实体的数据库集合。
+    /// </summary>
+    DbSet<ChatShareMessage> ChatShareMessages { get; set; }
+
+    /// <summary>
+    /// 获取或设置聊天共享消息项实体的数据库集合。
+    /// </summary>
+    DbSet<ChatShareMessageItem> ChatShareMessageItems { get; set; }
 
     /// <summary>
     /// 异步保存所有对数据库的更改。

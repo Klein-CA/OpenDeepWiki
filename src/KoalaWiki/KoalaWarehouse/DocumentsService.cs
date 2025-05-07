@@ -63,6 +63,11 @@ public class DocumentsService
         return [];
     }
 
+    /// <summary>
+    /// 获取指定目录下的文件结构目录列表（排除忽略的文件和目录，并过滤 README 文件）。
+    /// </summary>
+    /// <param name="path">要扫描的目录路径</param>
+    /// <returns>返回整理后的目录结构字符串，每行一个相对路径</returns>
     public static string GetCatalogue(string path)
     {
         var ignoreFiles = GetIgnoreFiles(path);
